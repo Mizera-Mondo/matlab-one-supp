@@ -1,7 +1,0 @@
-function X = PCA_power_iteration(D, k)
-%PCA_POWER_ITERATION Calculate PCA of data matrix D 
-%   此处显示详细说明
-outputArg1 = inputArg1;
-outputArg2 = inputArg2;
-end
-
