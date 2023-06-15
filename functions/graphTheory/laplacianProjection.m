@@ -1,14 +1,15 @@
 function G = laplacianProjection(M)
 %LAPLACIANPROJECTION Project the input matrix so as to get a nearest valid Laplacian.
 %   Input: M
-if ~issymmetric(M)
-    M = (M + M')/2;
-end
 
 % Initialization
+
+[N, ~] = size(M);
+M = M./abs(trace(M)).*N;
+
 G = M;
 K = M;
-[N, ~] = size(M);
+
 Phi = zeros(N);
 rho = 0.3;
 m = mat2vec(M);
@@ -35,15 +36,17 @@ for i = 1:N
     end
 end
 
+O = zeros(N);
 % G1 = 0
 for i = 1:N
     T = zeros(N);
     T(i, :) = ones(1, N);
     Aeq = [Aeq, mat2vec(T)];
     beq = [beq, 0];
+    O = O + T;
 end
-
-% trace(G) = N
+% 
+% % trace(G) = N
 Aeq = [Aeq, mat2vec(eye(N))];
 beq = [beq, N];
 
@@ -61,6 +64,7 @@ isMaxIter = false;
 
 while ~isAdmmConverge && ~isMaxIter
     G_old = G;
+    K_old = K;
     % Non-SPD part w.r.t G, using quadratic programming solver
     g = mat2vec(G);
     k = mat2vec(K);
@@ -76,7 +80,8 @@ while ~isAdmmConverge && ~isMaxIter
     % Update Phi
     Phi = Phi + rho*(G - K);
     % Convergence Check
-    isAdmmConverge = norm(G - G_old, 'fro')/norm(G_old) < 1e-5;
+    isAdmmConverge = norm(G - G_old, 'fro')/norm(G_old, 'fro') < 1e-3 && ...
+        norm(K - K_old, 'fro')/norm(K_old, 'fro') < 1e-3;
     isMaxIter = iter >= maxIter;
     iter = iter + 1;
 end
