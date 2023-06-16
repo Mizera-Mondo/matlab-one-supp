@@ -5,7 +5,9 @@ function G = laplacianProjection(M)
 % Initialization
 
 [N, ~] = size(M);
-M = M./abs(trace(M)).*N;
+if mean(abs(M), 'all') > 1e10
+    warning(['The input matrix has too large elements.'  newline  'This may lead to numerical problems.']);
+end
 
 G = M;
 K = M;
